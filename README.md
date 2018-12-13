@@ -53,4 +53,4 @@ PIXI.js的设计缺陷，对单个对象多个动画的播放有限制，将重�
 ### 虚拟摇杆
 方便测试,为移动端提供虚拟摇杆。
 
-[演示](https://sandbox.runjs.cn/show/rwy9tmtx) [代码](https://runjs.cn/code/rwy9tmtx
+[演示](https://sandbox.runjs.cn/show/rwy9tmtx) [代码](https://runjs.cn/code/rwy9tmtx)
