@@ -49,3 +49,8 @@ PIXI.js的设计缺陷，对单个对象多个动画的播放有限制，将重�
 在16 * 16 的单个关卡中，迷宫的难度是很低的，所有增加了迷雾来增加难度。
 
 [演示](https://sandbox.runjs.cn/show/nklrp0mw) [代码](https://runjs.cn/code/nklrp0mw)
+
+### 虚拟摇杆
+方便测试,为移动端提供虚拟摇杆。
+
+[演示](https://sandbox.runjs.cn/show/rwy9tmtx) [代码](https://runjs.cn/code/rwy9tmtx
