@@ -22,7 +22,7 @@
 - PIXI.js
 - Colyseus.js
 
-## 设计
+## 客户端设计
 
 ### 动画控制
 PIXI.js的设计缺陷，对单个对象多个动画的播放有限制，将重写动画控制。
@@ -54,3 +54,9 @@ PIXI.js的设计缺陷，对单个对象多个动画的播放有限制，将重�
 方便测试,为移动端提供虚拟摇杆。
 
 [演示](https://sandbox.runjs.cn/show/rwy9tmtx) [代码](https://runjs.cn/code/rwy9tmtx)
+
+## 服务端
+Colyseus有状态同步相关的例子，基于官方代码编写。
+
+### 状态同步
+[代码](https://github.com/gamestdio/colyseus-examples)
