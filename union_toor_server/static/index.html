@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width" />
+
+  <!-- colyseus.js client (npm run bundle-colyseus-client) -->
+  <script type="text/javascript" src="./colyseus.js"></script>
+  <script src="./pixi.min.js"></script>
+  <style>
+    * {
+      padding: 0;
+      margin: 0
+    }
+  </style>
+</head>
+
+<body>
+
+  <script>
+    var host = window.document.location.host.replace(/:.*/, '');
+
+    let Application = PIXI.Application,
+      Container = PIXI.Container,
+      loader = PIXI.loader,
+      resources = PIXI.loader.resources,
+      TextureCache = PIXI.utils.TextureCache,
+      Sprite = PIXI.Sprite,
+      Rectangle = PIXI.Rectangle;
+
+    let app = new Application({
+      width: 256,         // default: 800
+      height: 256,        // default: 600
+      antialias: true,    // default: false
+      transparent: false, // default: false
+      resolution: 1,       // default: 1
+      backgroundColor: 0xFFFFFF
+    });
+
+    // 32 x 32 layout
+    var layout = [],
+      client = null,
+      room = null,
+      players = {},
+      selector = null,
+      player = null;
+
+    document.body.appendChild(app.view);
+
+    loader
+      .add("DungeonTileset/DungeonTileset.json")
+      .add("res/base_selector1.png")
+      .add("res/cursor.png")
+      .load((loader, resources) => {
+
+        client = new Colyseus.Client(location.protocol.replace("http", "ws") + host + (location.port ? ':' + location.port : ''));
+        room = client.join("state_handler");
+        selector = new Sprite(TextureCache["res/base_selector1.png"]),
+          cursor = new Sprite(TextureCache["res/cursor.png"]);
+
+        function add(change) {
+
+          var frames = [];
+
+          frames.push(PIXI.Texture.fromFrame('elf_f_hit_anim_f0.png'));
+          for (var i = 0; i <= 3; i++) {
+            var val = i;
+            frames.push(PIXI.Texture.fromFrame('elf_f_idle_anim_f' + val + '.png'));
+            frames.push(PIXI.Texture.fromFrame('elf_f_run_anim_f' + val + '.png'));
+          }
+
+          var anim = new PIXI.extras.AnimatedSprite(frames);
+
+          anim.x = change.value.x;
+          anim.y = change.value.y;
+          // anim.anchor.set(0.5);
+          anim.animationSpeed = 0.1;
+          anim.gotoAndPlay(1);
+          // anim.play();
+
+          app.stage.addChild(anim);
+
+          players[change.path.id] = anim;
+
+          if (player === null) {
+            player = players[change.path.id];
+          }
+
+        }
+
+        function initUI() {
+          var style = new PIXI.TextStyle({
+            fontSize: 12
+          });
+          var basicText = new PIXI.Text('union toor', style);
+          basicText.x = 900;
+          basicText.y = 0;
+          app.stage.addChild(basicText);
+          app.stage.addChild(selector);
+          // app.stage.addChild(cursor);
+        }
+
+        function initMap() {
+
+          let texture = TextureCache["wall_mid.png"];
+          let wall_corner_left = TextureCache["wall_corner_left.png"];
+
+          for (let y = 0; y < 16; y++) {
+            for (let x = 0; x < 16; x++) {
+              let sprite = null;
+              if (x == 0) {
+                sprite = new Sprite(wall_corner_left);
+              } else {
+                sprite = new Sprite(texture);
+              }
+              sprite.position.y = y * 16;
+              sprite.position.x = x * 16;
+              sprite.interactive = true;
+              sprite.on("mouseover", function (event) {
+                selector.position.x = this.position.x;
+                selector.position.y = this.position.y;
+              });
+
+              app.stage.addChild(sprite);
+            }
+          }
+        }
+
+        initMap();
+        initUI();
+
+        app.ticker.add(delta => gameLoop(delta));
+
+        function gameLoop(delta) {
+          // console.log(delta);
+        }
+
+        room.listen("players/:id", function (change) {
+          if (change.operation === "add") {
+            add(change);
+          } else if (change.operation === "remove") {
+            app.stage.removeChild(players[change.path.id]);
+            delete players[change.path.id];
+          }
+        });
+
+        room.listen("players/:id/:axis", function (change) {
+          var player = players[change.path.id];
+          player.position[change.path.axis] = change.value;
+        });
+
+      });
+
+    window.addEventListener("keydown", function (e) {
+      console.log(e.which);
+      if (e.which === 38) {
+        up();
+
+      } else if (e.which === 39) {
+        right();
+
+      } else if (e.which === 40) {
+        down();
+
+      } else if (e.which === 37) {
+        left();
+      }
+    });
+
+    function up() {
+      room.send({ y: -1 });
+    }
+
+    function right() {
+      room.send({ x: 1 });
+    }
+
+    function down() {
+      room.send({ y: 1 })
+    }
+
+    function left() {
+      room.send({ x: -1 })
+    }
+  </script>
+  <!-- <script src="./02-demo1.js"></script> -->
+</body>
+
+</html>
